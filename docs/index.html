@@ -15,6 +15,7 @@
   --gold-primary: #D4AF37;
   --gold-glow: rgba(212,175,55,0.3);
   --gold-bright: #fbbf24;
+  --gold-dark: #8B6914;
   --text-primary: #f1f5f9;
   --text-muted: #94a3b8;
   --card-front: #111827;
@@ -29,113 +30,258 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  height: 100dvh;
-  width: 100vw;
-  overflow: hidden;
+  height: 100dvh; width: 100vw; overflow: hidden;
   font-family: var(--font-body);
   color: var(--text-primary);
   background: var(--bg-deep);
 }
 
-/* Background */
+/* ── RADIAL BACKGROUND ── */
 .bg-layer {
   position: fixed; inset: 0; z-index: 0;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(100,80,200,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(200,150,50,0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(50,100,200,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(100,80,200,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(200,150,50,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(50,100,200,0.08) 0%, transparent 50%),
     linear-gradient(180deg, #0a0a1a 0%, #1a1040 50%, #0d1b3e 100%);
 }
 
-/* ── ENVELOPE OVERLAY ── */
+/* ═══════════════════════════════════════════
+   PHASE 2 — WAX SEAL ENVELOPE ENTRY
+   ═══════════════════════════════════════════ */
+
+/* ── Envelope Overlay ── */
 .envelope-overlay {
   position: fixed; inset: 0; z-index: 100;
   display: flex; align-items: center; justify-content: center;
   background: var(--bg-deep);
-  transition: opacity 0.6s ease-in, visibility 0.6s ease-in;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.envelope-overlay.hidden {
+.envelope-overlay.closing {
   opacity: 0; visibility: hidden; pointer-events: none;
 }
-.envelope-container {
-  cursor: pointer;
+
+/* ── Envelope Container ── */
+.envelope-stage {
+  position: relative;
   display: flex; flex-direction: column; align-items: center;
-  animation: float 3s ease-in-out infinite;
+  animation: float 3.5s ease-in-out infinite;
 }
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-18px); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30%  { transform: translateY(-20px) rotate(-0.5deg); }
+  70%  { transform: translateY(-8px) rotate(0.5deg); }
 }
-.envelope-body {
+
+/* ── Envelope Body ── */
+.envelope {
   position: relative;
-  width: clamp(160px, 30vw, 260px);
-  height: clamp(110px, 20vw, 180px);
-  background: linear-gradient(145deg, #1e1e3a, #2a2a50);
-  border: 2px solid rgba(212,175,55,0.4);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 40px rgba(212,175,55,0.15), 0 8px 32px rgba(0,0,0,0.4);
+  width: clamp(200px, 35vw, 300px);
+  height: clamp(140px, 24vw, 210px);
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
-.envelope-flap {
-  position: absolute; top: 0; left: 0; right: 0; height: 50%;
-  background: linear-gradient(180deg, #2a2a50, #1e1e3a);
-  clip-path: polygon(0 0, 50% 70%, 100% 0);
-  border-radius: 8px 8px 0 0;
-  transition: transform 0.4s ease;
+.envelope:hover { transform: scale(1.03); }
+
+/* Envelope back */
+.env-back {
+  position: absolute; inset: 0;
+  background: linear-gradient(155deg, #1a1a3a 0%, #252550 40%, #1e1e42 100%);
+  border: 1.5px solid rgba(212,175,55,0.3);
+  border-radius: 10px;
+  box-shadow: 0 0 50px rgba(212,175,55,0.12), 0 8px 40px rgba(0,0,0,0.5);
+  overflow: hidden;
 }
-.envelope-body:hover .envelope-flap {
-  transform: rotateX(15deg);
+.env-back::after {
+  content: ''; position: absolute; inset: 0; border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%);
 }
-.wax-seal {
-  position: absolute; top: 50%; left: 50%;
+
+/* Envelope inner lining (visible on flap lift) */
+.env-lining {
+  position: absolute; inset: 0; border-radius: 10px;
+  background: linear-gradient(180deg, #2a2a55 0%, #1e1e42 100%);
+  z-index: 0;
+}
+
+/* Envelope bottom flap (the flat bottom of envelope) */
+.env-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 55%;
+  background: linear-gradient(0deg, #1e1e42, #252550);
+  clip-path: polygon(0 0, 50% 55%, 100% 0);
+  z-index: 3;
+  border-radius: 0 0 10px 10px;
+}
+
+/* Envelope top flap (the one that opens) */
+.env-flap {
+  position: absolute; top: 0; left: 0; right: 0; height: 60%;
+  background: linear-gradient(180deg, #2a2a5a 0%, #222250 50%, #1a1a40 100%);
+  clip-path: polygon(0 0, 50% 85%, 100% 0);
+  z-index: 5;
+  border-radius: 10px 10px 0 0;
+  transform-origin: top center;
+  transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.envelope.opened .env-flap {
+  transform: rotateX(175deg);
+}
+/* Flap inner side shadow */
+.env-flap::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.1));
+  opacity: 0; transition: opacity 0.3s;
+}
+.envelope.opened .env-flap::after { opacity: 1; }
+
+/* ── SVG Wax Seal ── */
+.wax-seal-svg {
+  position: absolute;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: clamp(60px, 12vw, 90px);
-  height: clamp(60px, 12vw, 90px);
-  border-radius: 50%;
-  background: radial-gradient(circle, #D4AF37 0%, #8B6914 100%);
-  border: 3px solid #6B4F0A;
+  width: clamp(70px, 14vw, 100px);
+  height: clamp(70px, 14vw, 100px);
+  z-index: 10;
+  filter: drop-shadow(0 0 18px rgba(212,175,55,0.5));
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+/* Ribbon tails behind seal (CSS) */
+.wax-ribbon {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9;
+  width: clamp(80px, 16vw, 120px);
+  height: clamp(26px, 5vw, 36px);
   display: flex; align-items: center; justify-content: center;
+}
+.wax-ribbon::before,
+.wax-ribbon::after {
+  content: '';
+  position: absolute;
+  width: clamp(28px, 5vw, 40px);
+  height: clamp(14px, 2.5vw, 20px);
+  background: rgba(180,140,40,0.6);
+  border: 1px solid rgba(180,140,40,0.8);
+  border-radius: 2px;
+}
+.wax-ribbon::before {
+  left: 0;
+  transform: rotate(-20deg) translateY(6px);
+}
+.wax-ribbon::after {
+  right: 0;
+  transform: rotate(20deg) translateY(6px);
+}
+
+/* ── Letter (slides out) ── */
+.letter {
+  position: absolute;
+  bottom: 0; left: 8%; right: 8%;
+  height: 68%;
+  background: linear-gradient(180deg, #faf8f0 0%, #f0ead6 100%);
+  border-radius: 4px 4px 0 0;
+  z-index: 4;
+  transform: translateY(0);
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(8px, 2vw, 16px);
+}
+.letter-inner {
   text-align: center;
-  font-family: var(--font-body);
+  font-family: var(--font-heading);
   font-weight: 700;
-  font-size: clamp(7px, 1.4vw, 10px);
+  font-size: clamp(0.7rem, 1.2vw, 0.9rem);
   color: #3d2a00;
-  line-height: 1.2;
-  box-shadow: 0 0 20px rgba(212,175,55,0.5), inset 0 0 10px rgba(0,0,0,0.3);
-  z-index: 2;
+  line-height: 1.5;
 }
-.wax-seal-ribbon {
-  position: absolute; bottom: -10px; left: 50%;
-  transform: translateX(-50%);
-  width: clamp(40px, 8vw, 60px);
-  height: 20px;
-  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent);
-  z-index: 1;
+.letter-inner .to-line {
+  font-size: clamp(0.55rem, 0.9vw, 0.7rem);
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: #6b4f0a;
+  margin-bottom: 4px;
 }
+.letter-inner .name-line {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: #1a0a00;
+}
+.letter-lines {
+  margin-top: 6px;
+  display: flex; flex-direction: column; gap: 3px;
+  align-items: center;
+}
+.letter-line {
+  height: 1.5px; background: rgba(107,79,10,0.2); border-radius: 1px;
+}
+.letter-line:nth-child(1) { width: 80%; }
+.letter-line:nth-child(2) { width: 90%; }
+.letter-line:nth-child(3) { width: 70%; }
+
+.envelope.opened .letter {
+  transform: translateY(-105%);
+}
+
+/* ── Hint text ── */
 .envelope-hint {
-  margin-top: 1rem;
+  margin-top: 1.2rem;
   font-size: 0.85rem;
   color: var(--gold-primary);
   opacity: 0.7;
   font-weight: 600;
-  letter-spacing: 2px;
-  animation: pulse-hint 2s ease-in-out infinite;
+  letter-spacing: 3px;
+  animation: pulse-hint 2.2s ease-in-out infinite;
+  transition: opacity 0.5s ease;
 }
+.envelope.opened ~ .envelope-hint { opacity: 0; }
 @keyframes pulse-hint {
-  0%, 100% { opacity: 0.4; }
+  0%, 100% { opacity: 0.35; }
   50% { opacity: 1; }
 }
 
-/* ── DASHBOARD ── */
+/* ── Sparkle particles (during opening) ── */
+.sparkle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 150;
+  font-size: 1.2rem;
+  animation: sparkle-fly 1.2s ease-out forwards;
+}
+@keyframes sparkle-fly {
+  0% { opacity: 1; transform: translate(0, 0) scale(0); }
+  30% { opacity: 1; transform: translate(0, 0) scale(1.2); }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0); }
+}
+
+/* ── Flash overlay (brief white flash on open) ── */
+.flash-overlay {
+  position: fixed; inset: 0; z-index: 120;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+.flash-overlay.fire { opacity: 1; transition: opacity 0s; }
+
+/* ═══════════════════════════════════════════
+   DASHBOARD
+   ═══════════════════════════════════════════ */
+
 .dashboard {
   position: fixed; inset: 0; z-index: 10;
   display: flex; flex-direction: column;
-  opacity: 0; transition: opacity 0.8s ease-out 0.3s;
+  opacity: 0; transform: scale(0.97);
+  transition: opacity 0.7s ease-out 0.5s,
+              transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s;
   overflow: hidden;
 }
-.dashboard.visible { opacity: 1; }
+.dashboard.visible {
+  opacity: 1; transform: scale(1);
+}
 
-/* Header */
 .dashboard-header {
   text-align: center;
   padding: clamp(1rem, 3vh, 2rem) 1rem 0.5rem;
@@ -151,16 +297,13 @@ html, body {
 }
 .dashboard-header p {
   font-size: clamp(0.75rem, 1.3vw, 0.95rem);
-  max-width: 650px;
-  margin: 0 auto;
-  line-height: 1.6;
-  color: var(--text-muted);
+  max-width: 650px; margin: 0 auto;
+  line-height: 1.6; color: var(--text-muted);
 }
 
-/* Card Grid */
+/* ── Card Grid ── */
 .card-grid-wrapper {
-  flex: 1;
-  overflow-y: auto;
+  flex: 1; overflow-y: auto;
   padding: 0.5rem 1rem 1rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.1) transparent;
@@ -173,31 +316,17 @@ html, body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 22vw, 200px), 1fr));
   gap: clamp(0.5rem, 1.5vw, 1rem);
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: 1100px; margin: 0 auto;
 }
+@media (min-width: 1024px) { .card-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 640px) and (max-width: 1023px) { .card-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 480px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
 
-@media (min-width: 1024px) {
-  .card-grid { grid-template-columns: repeat(4, 1fr); }
-}
-@media (min-width: 640px) and (max-width: 1023px) {
-  .card-grid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 480px) {
-  .card-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* ── FLIP CARD ── */
+/* ── Flip Card ── */
 .card {
-  perspective: 800px;
-  aspect-ratio: 3 / 4;
-  cursor: pointer;
-  border: none;
-  background: none;
-  padding: 0;
-  font: inherit;
-  color: inherit;
-  outline: none;
+  perspective: 800px; aspect-ratio: 3 / 4;
+  cursor: pointer; border: none; background: none;
+  padding: 0; font: inherit; color: inherit; outline: none;
 }
 .card:focus-visible .card-front,
 .card:focus-visible .card-back {
@@ -210,13 +339,10 @@ html, body {
 }
 .card.flipped .card-inner { transform: rotateY(180deg); }
 .card-front, .card-back {
-  position: absolute; inset: 0;
-  backface-visibility: hidden;
-  border-radius: 16px;
+  position: absolute; inset: 0; backface-visibility: hidden;
+  border-radius: 16px; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 1rem;
-  border: 1px solid var(--glass-border);
-  overflow: hidden;
+  padding: 1rem; border: 1px solid var(--glass-border);
 }
 .card-front {
   background: var(--card-front);
@@ -228,25 +354,19 @@ html, body {
   box-shadow: 0 0 25px var(--gold-glow), 0 8px 32px rgba(0,0,0,0.4);
 }
 .card-front .card-emoji {
-  font-size: clamp(2rem, 5vw, 3rem);
-  margin-bottom: 0.5rem;
+  font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 0.5rem;
   filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
 }
 .card-front .card-label {
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-body); font-weight: 600;
   font-size: clamp(0.6rem, 1.1vw, 0.75rem);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--gold-bright);
-  text-align: center;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--gold-bright); text-align: center;
 }
-
 .card-back {
   transform: rotateY(180deg);
   background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.15);
   box-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
@@ -257,33 +377,22 @@ html, body {
 .card-back.color-1::before { background: var(--amethyst); }
 .card-back.color-2::before { background: var(--ruby); }
 .card-back.color-3::before { background: var(--emerald); }
-
 .card-back .card-shout {
-  font-family: var(--font-heading);
-  font-weight: 700;
+  font-family: var(--font-heading); font-weight: 700;
   font-size: clamp(0.85rem, 1.6vw, 1.2rem);
-  text-align: center;
-  text-shadow: 0 0 20px rgba(255,255,255,0.2);
-  flex: 1;
+  text-align: center; flex: 1;
   display: flex; align-items: center;
+  text-shadow: 0 0 20px rgba(255,255,255,0.2);
 }
 .card-back .card-signature {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-style: italic;
-  font-size: 0.7rem;
-  color: var(--gold-bright);
-  opacity: 0.8;
-  margin-top: auto;
-  text-align: center;
+  font-family: var(--font-body); font-weight: 600; font-style: italic;
+  font-size: 0.7rem; color: var(--gold-bright); opacity: 0.8;
+  margin-top: auto; text-align: center;
 }
 
-/* ── CONFETTI ── */
+/* ── Confetti ── */
 .confetti-particle {
-  position: fixed;
-  font-size: 1.5rem;
-  pointer-events: none;
-  z-index: 200;
+  position: fixed; font-size: 1.5rem; pointer-events: none; z-index: 200;
   animation: confetti-burst 1.5s ease-out forwards;
 }
 @keyframes confetti-burst {
@@ -292,42 +401,35 @@ html, body {
   100% { opacity: 0; transform: translate(var(--cx), var(--cy)) scale(0.3) rotate(var(--cr)); }
 }
 
-/* ── RESTART BUTTON ── */
+/* ── Restart Button ── */
 .restart-btn {
   position: fixed; bottom: clamp(0.5rem, 2vh, 1rem);
-  right: clamp(0.5rem, 2vw, 1rem);
-  z-index: 50;
+  right: clamp(0.5rem, 2vw, 1rem); z-index: 50;
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 12px;
-  padding: 0.5rem 1rem;
+  border-radius: 12px; padding: 0.5rem 1rem;
   color: var(--text-muted);
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  opacity: 0;
-  pointer-events: none;
+  font-family: var(--font-body); font-weight: 600; font-size: 0.8rem;
+  cursor: pointer; transition: all 0.3s ease;
+  opacity: 0; pointer-events: none;
 }
-.dashboard.visible .restart-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
+.dashboard.visible .restart-btn { opacity: 1; pointer-events: auto; }
 .restart-btn:hover {
-  background: rgba(255,255,255,0.15);
-  color: var(--gold-primary);
+  background: rgba(255,255,255,0.15); color: var(--gold-primary);
   border-color: rgba(212,175,55,0.3);
 }
 
-/* ── REDUCED MOTION ── */
+/* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .envelope-container { animation: none; }
+  .envelope-stage { animation: none; }
   .envelope-hint { animation: none; }
+  .env-flap { transition: none; }
+  .letter { transition: none; }
   .card-inner { transition: none; }
   .card:not(.flipped):hover .card-front { transform: none; }
-  .confetti-particle { display: none; }
+  .confetti-particle, .sparkle { display: none; }
+  .dashboard { transition: opacity 0.3s; transform: none; }
 }
 </style>
 </head>
@@ -336,20 +438,95 @@ html, body {
 <!-- Background -->
 <div class="bg-layer"></div>
 
-<!-- ── ENVELOPE OVERLAY ── -->
+<!-- ═══════════════════════════════════════════
+     ENVELOPE OVERLAY — Phase 2 Wax Seal Entry
+     ═══════════════════════════════════════════ -->
 <div class="envelope-overlay" id="envelopeOverlay" role="dialog" aria-label="Open farewell letter">
-  <div class="envelope-container" id="envelopeContainer" tabindex="0" role="button"
-       aria-label="Open farewell letter for Gino" title="Click to open">
-    <div class="envelope-body">
-      <div class="envelope-flap"></div>
-      <div class="wax-seal">Cosme-De<br>.Net</div>
-      <div class="wax-seal-ribbon"></div>
+  <div class="envelope-stage" id="envelopeStage">
+    <div class="envelope" id="envelope" tabindex="0" role="button"
+         aria-label="Open farewell letter for Gino" title="Click to open">
+
+      <!-- Envelope back -->
+      <div class="env-back"></div>
+
+      <!-- Inner lining -->
+      <div class="env-lining"></div>
+
+      <!-- Letter that slides out -->
+      <div class="letter" id="letter">
+        <div class="letter-inner">
+          <div class="to-line">To our dearest teammate,</div>
+          <div class="name-line">Gino</div>
+          <div class="letter-lines">
+            <div class="letter-line"></div>
+            <div class="letter-line"></div>
+            <div class="letter-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wax seal ribbon tails -->
+      <div class="wax-ribbon"></div>
+
+      <!-- SVG Wax Seal with CDN logo -->
+      <svg class="wax-seal-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="waxGrad" cx="40%" cy="35%" r="55%">
+            <stop offset="0%" stop-color="#F5D76E"/>
+            <stop offset="35%" stop-color="#D4AF37"/>
+            <stop offset="70%" stop-color="#B8941E"/>
+            <stop offset="100%" stop-color="#8B6914"/>
+          </radialGradient>
+          <radialGradient id="waxInner" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+            <stop offset="80%" stop-color="rgba(0,0,0,0.08)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0.2)"/>
+          </radialGradient>
+          <filter id="waxShadow">
+            <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        <!-- Outer ring -->
+        <circle cx="50" cy="50" r="48" fill="url(#waxGrad)" filter="url(#waxShadow)"/>
+        <!-- Decorative dotted ring -->
+        <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(107,79,10,0.35)" stroke-width="1" stroke-dasharray="3 3"/>
+        <!-- Inner ring -->
+        <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(107,79,10,0.25)" stroke-width="0.8"/>
+        <!-- Inner shadow overlay -->
+        <circle cx="50" cy="50" r="48" fill="url(#waxInner)"/>
+        <!-- CDN Text -->
+        <text x="50" y="46" text-anchor="middle" dominant-baseline="central"
+              font-family="'Playfair Display', 'Georgia', serif" font-weight="700"
+              font-size="23" fill="#3d2a00" letter-spacing="3">CDN</text>
+        <!-- Subtitle line -->
+        <line x1="28" y1="60" x2="72" y2="60" stroke="rgba(61,42,0,0.4)" stroke-width="0.8"/>
+        <text x="50" y="68" text-anchor="middle" dominant-baseline="central"
+              font-family="'Montserrat', sans-serif" font-weight="600"
+              font-size="6" fill="rgba(61,42,0,0.7)" letter-spacing="1.5">INVENTORY</text>
+        <!-- Small decorative dots around perimeter -->
+        <circle cx="50" cy="6" r="1.2" fill="rgba(61,42,0,0.5)"/>
+        <circle cx="50" cy="94" r="1.2" fill="rgba(61,42,0,0.5)"/>
+        <circle cx="6" cy="50" r="1.2" fill="rgba(61,42,0,0.5)"/>
+        <circle cx="94" cy="50" r="1.2" fill="rgba(61,42,0,0.5)"/>
+      </svg>
+
+      <!-- Bottom flap (on top of letter) -->
+      <div class="env-bottom"></div>
+
+      <!-- Top flap (closes over everything) -->
+      <div class="env-flap"></div>
     </div>
-    <p class="envelope-hint">✉ OPEN ME</p>
+
+    <p class="envelope-hint" id="envelopeHint">✉ OPEN ME</p>
   </div>
 </div>
 
-<!-- ── DASHBOARD ── -->
+<!-- Flash overlay -->
+<div class="flash-overlay" id="flashOverlay"></div>
+
+<!-- ═══════════════════════════════════════════
+     DASHBOARD
+     ═══════════════════════════════════════════ -->
 <div class="dashboard" id="dashboard">
   <div class="dashboard-header">
     <h1>Dear Gino,</h1>
@@ -365,17 +542,12 @@ html, body {
   </div>
 
   <div class="card-grid-wrapper">
-    <div class="card-grid" id="cardGrid">
-      <!-- Cards injected by JS -->
-    </div>
+    <div class="card-grid" id="cardGrid"></div>
   </div>
 
-  <button class="restart-btn" id="restartBtn" aria-label="Restart animation">
-    🔄 Restart
-  </button>
+  <button class="restart-btn" id="restartBtn" aria-label="Restart animation">🔄 Restart</button>
 </div>
 
-<!-- ── SOUNDS (optional, graceful fallback) ── -->
 <script>
 // ── CARD DATA ──
 const cards = [
@@ -392,9 +564,12 @@ const cards = [
   { emoji: '🎉', front: 'Tap to reveal', back: 'Your legend lives on in this codebase!', color: 2 },
 ];
 
-// ── DOM REFS ──
+// ── DOM ──
 const envelopeOverlay = document.getElementById('envelopeOverlay');
-const envelopeContainer = document.getElementById('envelopeContainer');
+const envelope = document.getElementById('envelope');
+const envelopeStage = document.getElementById('envelopeStage');
+const envelopeHint = document.getElementById('envelopeHint');
+const flashOverlay = document.getElementById('flashOverlay');
 const dashboard = document.getElementById('dashboard');
 const cardGrid = document.getElementById('cardGrid');
 const restartBtn = document.getElementById('restartBtn');
@@ -417,8 +592,7 @@ function buildCards() {
           <span class="card-shout">${card.back}</span>
           <span class="card-signature">Sincerely from,<br>Jerrison</span>
         </div>
-      </div>
-    `;
+      </div>`;
     btn.addEventListener('click', () => flipCard(btn));
     btn.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flipCard(btn); }
@@ -427,7 +601,7 @@ function buildCards() {
   });
 }
 
-// ── FLIP CARD + CONFETTI ──
+// ── FLIP CARD ──
 function flipCard(card) {
   if (card.classList.contains('flipped')) return;
   card.classList.add('flipped');
@@ -436,14 +610,13 @@ function flipCard(card) {
   playFlipSound();
 }
 
-// ── CONFETTI ENGINE ──
+// ── CONFETTI ──
 function spawnConfetti(card) {
   const rect = card.getBoundingClientRect();
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;
-  const emojis = ['✨', '🎊', '🎇', '💖', '🎉', '⭐', '🌟'];
+  const emojis = ['✨','🎊','🎇','💖','🎉','⭐','🌟'];
   const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 22;
-
   for (let i = 0; i < count; i++) {
     const el = document.createElement('span');
     el.className = 'confetti-particle';
@@ -456,77 +629,143 @@ function spawnConfetti(card) {
     el.style.animationDelay = Math.random() * 0.2 + 's';
     el.style.animationDuration = (1.2 + Math.random() * 1.5) + 's';
     document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2200);
+  }
+}
+
+// ── SOUNDS ──
+function playOpenSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Paper crinkle layer
+    const now = ctx.currentTime;
+    const noise = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    const bufSize = ctx.sampleRate * 0.3;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+    noise.buffer = buf;
+    noise.connect(gain); gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    noise.start(now); noise.stop(now + 0.3);
+    // Rising chime
+    const o = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    o.connect(g2); g2.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(523, now + 0.1);   // C5
+    o.frequency.setValueAtTime(659, now + 0.25);   // E5
+    o.frequency.setValueAtTime(784, now + 0.4);    // G5
+    g2.gain.setValueAtTime(0, now + 0.1);
+    g2.gain.linearRampToValueAtTime(0.12, now + 0.2);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+    o.start(now + 0.1); o.stop(now + 0.7);
+  } catch(e) { /* silent */ }
+}
+
+let flipAudio = null;
+try {
+  flipAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+  flipAudio.volume = 0.15;
+} catch(e) {}
+
+function playFlipSound() {
+  if (!flipAudio) return;
+  try { flipAudio.currentTime = 0; flipAudio.play().catch(() => {}); } catch(e) {}
+}
+
+// ── SPARKLE BURST ──
+function spawnSparkles(x, y) {
+  const emojis = ['✨','⭐','💫','🌟','⚡'];
+  const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 16;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('span');
+    el.className = 'sparkle';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 80 + Math.random() * 180;
+    el.style.setProperty('--sx', Math.cos(angle) * dist + 'px');
+    el.style.setProperty('--sy', Math.sin(angle) * dist + 'px');
+    el.style.animationDelay = Math.random() * 0.3 + 's';
+    el.style.animationDuration = (0.8 + Math.random() * 1.0) + 's';
+    document.body.appendChild(el);
     setTimeout(() => el.remove(), 2000);
   }
 }
 
-// ── SOUND (graceful fallback) ──
-let flipAudio = null;
-try {
-  flipAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
-  flipAudio.volume = 0.2;
-} catch(e) { /* silent */ }
-
-function playFlipSound() {
-  if (!flipAudio) return;
-  try {
-    flipAudio.currentTime = 0;
-    flipAudio.play().catch(() => {});
-  } catch(e) { /* silent */ }
+// ── FLASH EFFECT ──
+function triggerFlash() {
+  flashOverlay.classList.add('fire');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => flashOverlay.classList.remove('fire'));
+  });
 }
 
-function playOpenSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type = 'sine';
-    o.frequency.setValueAtTime(600, ctx.currentTime);
-    o.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
-    o.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.4);
-    g.gain.setValueAtTime(0.15, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-    o.start(ctx.currentTime);
-    o.stop(ctx.currentTime + 0.5);
-  } catch(e) { /* silent */ }
-}
-
-// ── OPEN ENVELOPE ──
+// ═══════════════════════════════════════════
+//  OPEN ENVELOPE — Full animated sequence
+// ═══════════════════════════════════════════
 function openEnvelope() {
-  if (envelopeOverlay.classList.contains('hidden')) return;
+  if (envelope.classList.contains('opened')) return;
+
+  // 1. Play sound
   playOpenSound();
-  envelopeOverlay.classList.add('hidden');
-  dashboard.classList.add('visible');
+
+  // 2. Open flap + slide letter out
+  envelope.classList.add('opened');
+
+  // 3. Get envelope center for sparkles
+  const rect = envelope.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  spawnSparkles(cx, cy);
+
+  // 4. Brief flash
+  setTimeout(() => triggerFlash(), 100);
+
+  // 5. After letter slides out + flap opens, fade envelope overlay
+  setTimeout(() => {
+    envelopeOverlay.classList.add('closing');
+    dashboard.classList.add('visible');
+  }, 650);
+
+  // 6. Clean up envelope state when restart is called
+  envelopeHint.style.opacity = '0';
 }
 
 // ── RESTART ──
 function restart() {
-  envelopeOverlay.classList.remove('hidden');
+  // Reset envelope
+  envelope.classList.remove('opened');
+  envelopeHint.style.opacity = '';
+  envelopeOverlay.classList.remove('closing');
+
+  // Reset dashboard
   dashboard.classList.remove('visible');
+
+  // Reset all cards
   document.querySelectorAll('.card.flipped').forEach(c => {
     c.classList.remove('flipped');
     c.setAttribute('aria-expanded', 'false');
   });
-  envelopeContainer.focus();
-  // Small delay to let CSS transitions reset
-  setTimeout(() => {
-    envelopeOverlay.style.opacity = '';
-  }, 50);
+
+  // Refocus envelope
+  setTimeout(() => envelope.focus(), 300);
 }
 
 // ── EVENT BINDINGS ──
-envelopeContainer.addEventListener('click', openEnvelope);
-envelopeContainer.addEventListener('keydown', (e) => {
+envelope.addEventListener('click', openEnvelope);
+envelope.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openEnvelope(); }
 });
 restartBtn.addEventListener('click', restart);
 
 // ── INIT ──
 buildCards();
-
-// Auto-focus envelope for keyboard users after a short delay
-setTimeout(() => envelopeContainer.focus(), 500);
+setTimeout(() => envelope.focus(), 600);
 </script>
 </body>
 </html>
