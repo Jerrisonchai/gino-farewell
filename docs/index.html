@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farewell Gino — Cosme-De.Net Inventory Team</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0a0a1a;
+  --glass-bg: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.12);
+  --gold-primary: #D4AF37;
+  --gold-glow: rgba(212,175,55,0.3);
+  --gold-bright: #fbbf24;
+  --text-primary: #f1f5f9;
+  --text-muted: #94a3b8;
+  --card-front: #111827;
+  --sapphire: linear-gradient(135deg, #1e3a5f, #3b5998);
+  --amethyst: linear-gradient(135deg, #2d1b69, #6d28d9);
+  --ruby: linear-gradient(135deg, #5c1a1a, #dc2626);
+  --emerald: linear-gradient(135deg, #1a3d2e, #059669);
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Montserrat', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--bg-deep);
+}
+
+/* Background */
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(100,80,200,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(200,150,50,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(50,100,200,0.1) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0a1a 0%, #1a1040 50%, #0d1b3e 100%);
+}
+
+/* ── ENVELOPE OVERLAY ── */
+.envelope-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-deep);
+  transition: opacity 0.6s ease-in, visibility 0.6s ease-in;
+}
+.envelope-overlay.hidden {
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+.envelope-container {
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+.envelope-body {
+  position: relative;
+  width: clamp(160px, 30vw, 260px);
+  height: clamp(110px, 20vw, 180px);
+  background: linear-gradient(145deg, #1e1e3a, #2a2a50);
+  border: 2px solid rgba(212,175,55,0.4);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 40px rgba(212,175,55,0.15), 0 8px 32px rgba(0,0,0,0.4);
+}
+.envelope-flap {
+  position: absolute; top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, #2a2a50, #1e1e3a);
+  clip-path: polygon(0 0, 50% 70%, 100% 0);
+  border-radius: 8px 8px 0 0;
+  transition: transform 0.4s ease;
+}
+.envelope-body:hover .envelope-flap {
+  transform: rotateX(15deg);
+}
+.wax-seal {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(60px, 12vw, 90px);
+  height: clamp(60px, 12vw, 90px);
+  border-radius: 50%;
+  background: radial-gradient(circle, #D4AF37 0%, #8B6914 100%);
+  border: 3px solid #6B4F0A;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(7px, 1.4vw, 10px);
+  color: #3d2a00;
+  line-height: 1.2;
+  box-shadow: 0 0 20px rgba(212,175,55,0.5), inset 0 0 10px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+.wax-seal-ribbon {
+  position: absolute; bottom: -10px; left: 50%;
+  transform: translateX(-50%);
+  width: clamp(40px, 8vw, 60px);
+  height: 20px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent);
+  z-index: 1;
+}
+.envelope-hint {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--gold-primary);
+  opacity: 0.7;
+  font-weight: 600;
+  letter-spacing: 2px;
+  animation: pulse-hint 2s ease-in-out infinite;
+}
+@keyframes pulse-hint {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ── DASHBOARD ── */
+.dashboard {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  opacity: 0; transition: opacity 0.8s ease-out 0.3s;
+  overflow: hidden;
+}
+.dashboard.visible { opacity: 1; }
+
+/* Header */
+.dashboard-header {
+  text-align: center;
+  padding: clamp(1rem, 3vh, 2rem) 1rem 0.5rem;
+  flex-shrink: 0;
+}
+.dashboard-header h1 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  color: var(--gold-primary);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 30px var(--gold-glow);
+}
+.dashboard-header p {
+  font-size: clamp(0.75rem, 1.3vw, 0.95rem);
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Card Grid */
+.card-grid-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 1rem 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.card-grid-wrapper::-webkit-scrollbar { width: 4px; }
+.card-grid-wrapper::-webkit-scrollbar-track { background: transparent; }
+.card-grid-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 22vw, 200px), 1fr));
+  gap: clamp(0.5rem, 1.5vw, 1rem);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .card-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── FLIP CARD ── */
+.card {
+  perspective: 800px;
+  aspect-ratio: 3 / 4;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  outline: none;
+}
+.card:focus-visible .card-front,
+.card:focus-visible .card-back {
+  box-shadow: 0 0 0 3px var(--gold-primary), 0 0 25px var(--gold-glow);
+}
+.card-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.card.flipped .card-inner { transform: rotateY(180deg); }
+.card-front, .card-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 1rem;
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+.card-front {
+  background: var(--card-front);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:not(.flipped):hover .card-front {
+  transform: scale(1.03);
+  box-shadow: 0 0 25px var(--gold-glow), 0 8px 32px rgba(0,0,0,0.4);
+}
+.card-front .card-emoji {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+}
+.card-front .card-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(0.6rem, 1.1vw, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gold-bright);
+  text-align: center;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+.card-back::before {
+  content: ''; position: absolute; inset: 0; border-radius: 16px; z-index: -1;
+}
+.card-back.color-0::before { background: var(--sapphire); }
+.card-back.color-1::before { background: var(--amethyst); }
+.card-back.color-2::before { background: var(--ruby); }
+.card-back.color-3::before { background: var(--emerald); }
+
+.card-back .card-shout {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 1.6vw, 1.2rem);
+  text-align: center;
+  text-shadow: 0 0 20px rgba(255,255,255,0.2);
+  flex: 1;
+  display: flex; align-items: center;
+}
+.card-back .card-signature {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-style: italic;
+  font-size: 0.7rem;
+  color: var(--gold-bright);
+  opacity: 0.8;
+  margin-top: auto;
+  text-align: center;
+}
+
+/* ── CONFETTI ── */
+.confetti-particle {
+  position: fixed;
+  font-size: 1.5rem;
+  pointer-events: none;
+  z-index: 200;
+  animation: confetti-burst 1.5s ease-out forwards;
+}
+@keyframes confetti-burst {
+  0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+  60% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--cx), var(--cy)) scale(0.3) rotate(var(--cr)); }
+}
+
+/* ── RESTART BUTTON ── */
+.restart-btn {
+  position: fixed; bottom: clamp(0.5rem, 2vh, 1rem);
+  right: clamp(0.5rem, 2vw, 1rem);
+  z-index: 50;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.dashboard.visible .restart-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+.restart-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: var(--gold-primary);
+  border-color: rgba(212,175,55,0.3);
+}
+
+/* ── REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  .envelope-container { animation: none; }
+  .envelope-hint { animation: none; }
+  .card-inner { transition: none; }
+  .card:not(.flipped):hover .card-front { transform: none; }
+  .confetti-particle { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-layer"></div>
+
+<!-- ── ENVELOPE OVERLAY ── -->
+<div class="envelope-overlay" id="envelopeOverlay" role="dialog" aria-label="Open farewell letter">
+  <div class="envelope-container" id="envelopeContainer" tabindex="0" role="button"
+       aria-label="Open farewell letter for Gino" title="Click to open">
+    <div class="envelope-body">
+      <div class="envelope-flap"></div>
+      <div class="wax-seal">Cosme-De<br>.Net</div>
+      <div class="wax-seal-ribbon"></div>
+    </div>
+    <p class="envelope-hint">✉ OPEN ME</p>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div class="dashboard" id="dashboard">
+  <div class="dashboard-header">
+    <h1>Dear Gino,</h1>
+    <p>
+      After <strong>3 years and 9 months</strong> of dedication to the
+      <strong>Cosme-De.Net Inventory Team</strong>, it's time to celebrate
+      everything you've brought to this crew. From MasterAutomation to
+      JARVIS & PO_Sentry — your fingerprints are on the systems that keep
+      us running. More than that, your spirit, your calm under pressure,
+      and your relentless drive to innovate have made every day better.
+      <br>We'll miss you, but we're so damn proud of what you've built.
+    </p>
+  </div>
+
+  <div class="card-grid-wrapper">
+    <div class="card-grid" id="cardGrid">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+
+  <button class="restart-btn" id="restartBtn" aria-label="Restart animation">
+    🔄 Restart
+  </button>
+</div>
+
+<!-- ── SOUNDS (optional, graceful fallback) ── -->
+<script>
+// ── CARD DATA ──
+const cards = [
+  { emoji: '🏆', front: 'Tap to reveal', back: 'We are PROUD of YOU!', color: 0 },
+  { emoji: '🤝', front: 'Tap to reveal', back: 'We are honored to have you as a teammate!', color: 1 },
+  { emoji: '💪', front: 'Tap to reveal', back: 'Thanks for your hard work!', color: 2 },
+  { emoji: '💡', front: 'Tap to reveal', back: 'Appreciated your assistance!', color: 3 },
+  { emoji: '😊', front: 'Tap to reveal', back: 'You are so friendly!', color: 0 },
+  { emoji: '✨', front: 'Tap to reveal', back: 'Easy to work with!', color: 1 },
+  { emoji: '🚀', front: 'Tap to reveal', back: 'A true man-of-action!', color: 2 },
+  { emoji: '🧠', front: 'Tap to reveal', back: 'You are full of innovation!', color: 3 },
+  { emoji: '⚙️', front: 'Tap to reveal', back: 'YOU completed MasterAutomation!', color: 0 },
+  { emoji: '🤖', front: 'Tap to reveal', back: 'We built JARVIS & PO_Sentry!', color: 1 },
+  { emoji: '🎉', front: 'Tap to reveal', back: 'Your legend lives on in this codebase!', color: 2 },
+];
+
+// ── DOM REFS ──
+const envelopeOverlay = document.getElementById('envelopeOverlay');
+const envelopeContainer = document.getElementById('envelopeContainer');
+const dashboard = document.getElementById('dashboard');
+const cardGrid = document.getElementById('cardGrid');
+const restartBtn = document.getElementById('restartBtn');
+
+// ── BUILD CARDS ──
+function buildCards() {
+  cardGrid.innerHTML = '';
+  cards.forEach((card, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'card';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', `Flip card: ${card.back}`);
+    btn.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front">
+          <span class="card-emoji">${card.emoji}</span>
+          <span class="card-label">${card.front}</span>
+        </div>
+        <div class="card-back color-${card.color}">
+          <span class="card-shout">${card.back}</span>
+          <span class="card-signature">Sincerely from,<br>Jerrison</span>
+        </div>
+      </div>
+    `;
+    btn.addEventListener('click', () => flipCard(btn));
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flipCard(btn); }
+    });
+    cardGrid.appendChild(btn);
+  });
+}
+
+// ── FLIP CARD + CONFETTI ──
+function flipCard(card) {
+  if (card.classList.contains('flipped')) return;
+  card.classList.add('flipped');
+  card.setAttribute('aria-expanded', 'true');
+  spawnConfetti(card);
+  playFlipSound();
+}
+
+// ── CONFETTI ENGINE ──
+function spawnConfetti(card) {
+  const rect = card.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const emojis = ['✨', '🎊', '🎇', '💖', '🎉', '⭐', '🌟'];
+  const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 22;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('span');
+    el.className = 'confetti-particle';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = cx + 'px';
+    el.style.top = cy + 'px';
+    el.style.setProperty('--cx', (Math.random() * 300 - 150) + 'px');
+    el.style.setProperty('--cy', (Math.random() * -200 - 50) + 'px');
+    el.style.setProperty('--cr', (Math.random() * 720 - 360) + 'deg');
+    el.style.animationDelay = Math.random() * 0.2 + 's';
+    el.style.animationDuration = (1.2 + Math.random() * 1.5) + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+}
+
+// ── SOUND (graceful fallback) ──
+let flipAudio = null;
+try {
+  flipAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+  flipAudio.volume = 0.2;
+} catch(e) { /* silent */ }
+
+function playFlipSound() {
+  if (!flipAudio) return;
+  try {
+    flipAudio.currentTime = 0;
+    flipAudio.play().catch(() => {});
+  } catch(e) { /* silent */ }
+}
+
+function playOpenSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(600, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
+    o.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.4);
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.5);
+  } catch(e) { /* silent */ }
+}
+
+// ── OPEN ENVELOPE ──
+function openEnvelope() {
+  if (envelopeOverlay.classList.contains('hidden')) return;
+  playOpenSound();
+  envelopeOverlay.classList.add('hidden');
+  dashboard.classList.add('visible');
+}
+
+// ── RESTART ──
+function restart() {
+  envelopeOverlay.classList.remove('hidden');
+  dashboard.classList.remove('visible');
+  document.querySelectorAll('.card.flipped').forEach(c => {
+    c.classList.remove('flipped');
+    c.setAttribute('aria-expanded', 'false');
+  });
+  envelopeContainer.focus();
+  // Small delay to let CSS transitions reset
+  setTimeout(() => {
+    envelopeOverlay.style.opacity = '';
+  }, 50);
+}
+
+// ── EVENT BINDINGS ──
+envelopeContainer.addEventListener('click', openEnvelope);
+envelopeContainer.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openEnvelope(); }
+});
+restartBtn.addEventListener('click', restart);
+
+// ── INIT ──
+buildCards();
+
+// Auto-focus envelope for keyboard users after a short delay
+setTimeout(() => envelopeContainer.focus(), 500);
+</script>
+</body>
+</html>
