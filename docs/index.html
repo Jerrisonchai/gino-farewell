@@ -817,7 +817,7 @@ html, body {
         <div class="stat-label">Working Hours</div>
       </div>
     </div>
-    <div class="flip-counter" id="flipCounter">
+    <div class="flip-counter" id="flipCounter" aria-live="polite" aria-atomic="true">
       🃏 <span class="counter-done" id="counterDone">0</span> / 11 cards opened
     </div>
     <p>
@@ -840,7 +840,7 @@ html, body {
 </div>
 
 <!-- Celebration Overlay -->
-<div class="celebration-overlay" id="celebrationOverlay">
+<div class="celebration-overlay" id="celebrationOverlay" role="alertdialog" aria-modal="true" aria-label="Celebration - All cards revealed">
   <div class="celebration-toast">
     <div class="celebration-stars">⭐⭐⭐</div>
     <h2 class="celebration-title">Thank You<br>Gino!</h2>
@@ -1252,12 +1252,19 @@ function restart() {
 
   // Reset entrance classes so stagger re-runs
   document.querySelectorAll('.card.entered').forEach(c => c.classList.remove('entered'));
+  document.querySelectorAll('.card.cascade-flipping').forEach(c => c.classList.remove('cascade-flipping'));
 
   // Reset particles
   clearAmbientParticles();
 
   // Reset stats numbers to 0 for count-up re-run
-  document.querySelectorAll('.stat-number').forEach(el => { el.textContent = '0'; });
+  document.querySelectorAll('.stat-number').forEach(el => {
+    if (el.querySelector('.comma')) {
+      el.innerHTML = '0'; // reset the 7,200 cell too
+    } else {
+      el.textContent = '0';
+    }
+  });
 
   // Refocus envelope
   setTimeout(() => envelope.focus(), 300);
